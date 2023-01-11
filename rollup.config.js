@@ -1,35 +1,28 @@
-import babel from '@rollup/plugin-babel';
-import typescript from "rollup-plugin-typescript2";
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import commonjs from "@rollup/plugin-commonjs";
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
-
-const extensions = [".js", ".jsx", ".ts", ".tsx"];
-const external = ["react", "react-dom", "react/jsx-runtime", "styled-components"];
+import { babel } from '@rollup/plugin-babel';
+import nodeResolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import typescript from 'rollup-plugin-typescript2';
+import pkg from './package.json';
 
 export default {
-  input: './src/index.ts',
-  output: {
-    file: './dist/index.js',
-    format: 'es',
-    sourcemap: true,
-  },
+  input: 'src/index.ts',
+  output: [
+    {
+      file: pkg.main,
+      format: 'esm',
+      sourcemap: true,
+    },
+  ],
   plugins: [
-    peerDepsExternal(),
-    nodeResolve({
-      extensions,
-    }),
-    typescript(),
-    image(),
-    commonjs({
-      include: /node_modules/,
-    }),
+    commonjs(),
+    nodeResolve(),
+    typescript({ useTsconfigDeclarationDir: true, tsconfig: './tsconfig.json' }),
     babel({
       babelHelpers: 'bundled',
-      presets: ['@babel/preset-env', '@babel/preset-react'],
-      exclude: './node_modules/**',
-      extensions,
+      exclude: ['node_modules/**/*.(ts|tsx|js|jsx)', 'src/stories/**'],
+      include: 'src/**/*.(ts|tsx|js|jsx)',
+      extensions: ['.ts', '.tsx', '.js', '.jsx', '.es', '.es6', '.mjs'],
     }),
   ],
-  external,
+  external: ['react', 'react-dom', 'styled-components'],
 };
